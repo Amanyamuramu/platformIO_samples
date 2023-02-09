@@ -2,8 +2,10 @@
 #include"esp32-hal-ledc.h"
 
 const int ledPin = 19;
+const int AnalogreadPin = 25;
 int servoMaxPWM;
 int servoMinPWM;
+int counttime = 0; 
 
 void setup() {
   // 使用するタイマーのチャネルと周波数を設定
@@ -21,17 +23,23 @@ void setup() {
   int servoMeanPWM = (servoMaxPWM+servoMinPWM)/2;
   ledcWrite(0,int(servoMeanPWM));
   delay(500);
-
-
 } 
 void loop() {
+  int reading = analogRead(AnalogreadPin);
+  int mappingvalue = map(reading, 0,4095,servoMinPWM,servoMaxPWM);
+  ledcWrite(0,mappingvalue);
+  delay(20);
+  counttime += 20;
+  if(counttime > 1000){
+    Serial.println(reading);
+    delay(100);
+    counttime = 0;
+  }
+  //可変抵抗の抵抗値に基づいて動作servoの電圧外部にすれば安定
   
-  for(int i = servoMinPWM; i <servoMaxPWM; i+=100){
-    ledcWrite(0,i);
-    delay(50);
-  }
-  for(int i = servoMaxPWM; i > servoMinPWM; i-=100){
-    ledcWrite(0,i);
-    delay(50);
-  }
+  // for(int i = servoMinPWM; i <servoMaxPWM; i+=100){
+  //   ledcWrite(0,i);
+  //   delay(50);
+  // }
+// 
 }
